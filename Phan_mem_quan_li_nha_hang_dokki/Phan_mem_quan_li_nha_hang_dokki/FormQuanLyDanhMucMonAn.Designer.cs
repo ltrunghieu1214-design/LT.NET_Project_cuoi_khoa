@@ -1,6 +1,6 @@
 ﻿namespace Phan_mem_quan_li_nha_hang_dokki
 {
-    partial class FormQuanLyBanAn
+    partial class FormQuanLyDanhMucMonAn
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "FormQuanLyBanAn";
+            this.Text = "FormQuanLyDanhMuc";
         }
 
         #endregion
