@@ -13,5 +13,14 @@
     <Compile Update="FormQuanLyMonAn.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="FrmDangNhap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmNhanVien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FrmTaiKhoan.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>
