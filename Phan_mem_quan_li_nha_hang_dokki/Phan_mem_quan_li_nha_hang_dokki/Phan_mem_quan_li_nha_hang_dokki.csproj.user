@@ -4,6 +4,9 @@
     <Compile Update="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="FormOrderMon.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="FormQuanLyBanAnVaDatBan.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -11,6 +14,18 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="FormQuanLyMonAn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormThemBanAn.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormThemDanhMuc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormThemDatBan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormThemMonAn.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="FrmDangNhap.cs">

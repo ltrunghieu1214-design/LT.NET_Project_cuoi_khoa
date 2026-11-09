@@ -29,16 +29,37 @@ public class FormOrderMon : Form
         var pnlTop = BuildTopBar();
 
         // Thân giao diện chia 2 cột: Thực đơn (Trái) & Hóa đơn Order (Phải)
+        const int orderPanelWidth = 580; // Cố định chiều rộng chuẩn POS, không bao giờ phải kéo tay
+
         var split = new SplitContainer
         {
             Dock = DockStyle.Fill,
             Orientation = Orientation.Vertical,
-            SplitterDistance = 800,
-            SplitterWidth = 16, // Rãnh ngăn cách 16px rộng rãi, rõ ràng
-            BackColor = Color.FromArgb(235, 237, 242),
+            SplitterWidth = 8,
+            BackColor = Color.FromArgb(230, 232, 238),
             FixedPanel = FixedPanel.Panel2,
-            IsSplitterFixed = false
+            IsSplitterFixed = true // Khóa cố định thanh ngăn cách, ngăn việc vô tình kéo xô lệch
         };
+
+        void AdjustOrderSplitter()
+        {
+            if (split.Width < 700) return;
+            try
+            {
+                int desiredDistance = split.Width - orderPanelWidth - split.SplitterWidth;
+                if (desiredDistance > 200 && desiredDistance < split.Width - 200)
+                {
+                    split.SplitterDistance = desiredDistance;
+                }
+            }
+            catch
+            {
+                // Bỏ qua nếu WinForms chưa hoàn tất đo đạc kích thước
+            }
+        }
+
+        split.SizeChanged += (_, _) => AdjustOrderSplitter();
+        Shown += (_, _) => AdjustOrderSplitter();
 
         // Panel trái: Thực đơn món ăn
         var pnlLeftContainer = new Panel
@@ -66,68 +87,139 @@ public class FormOrderMon : Form
 
         split.Panel1.Controls.Add(pnlLeftContainer);
 
-        // Panel phải: Hóa đơn order (Tách biệt hoàn toàn với viền riêng và đệm lề)
+        // Panel phải: Hóa đơn order cố định vừa khít toàn bộ trang
         var pnlRightContainer = new Panel
         {
             Dock = DockStyle.Fill,
             BackColor = Color.White,
-            Padding = new Padding(14),
+            Padding = new Padding(12),
             BorderStyle = BorderStyle.FixedSingle
         };
         var pnlOrderHeader = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 48,
+            Height = 46,
             BackColor = FormUi.DarkRed,
-            Padding = new Padding(16, 12, 16, 12)
+            Padding = new Padding(14, 11, 14, 11)
         };
-        var lblOrderTitle = FormUi.Label("CHI TIẾT ORDER BÀN", 12F, FontStyle.Bold, Color.White);
+        var lblOrderTitle = FormUi.Label("CHI TIẾT ORDER BÀN", 11.5F, FontStyle.Bold, Color.White);
         pnlOrderHeader.Controls.Add(lblOrderTitle);
 
         gridOrderDetails = new DataGridView
         {
             Dock = DockStyle.Fill,
             BackgroundColor = Color.White,
-            BorderStyle = BorderStyle.FixedSingle,
+            BorderStyle = BorderStyle.None,
             AllowUserToAddRows = false,
             AllowUserToDeleteRows = false,
+            AllowUserToResizeColumns = false, // Cố định 100%, không cho kéo lệch cột
+            AllowUserToResizeRows = false,
+            AllowUserToOrderColumns = false,
             ReadOnly = true,
-            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             RowHeadersVisible = false,
             EnableHeadersVisualStyles = false,
+            ScrollBars = ScrollBars.Vertical, // Vừa khít ngang, chỉ cuộn dọc
             Font = FormUi.BodyFont
         };
         gridOrderDetails.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
         {
             BackColor = Color.FromArgb(240, 242, 245),
             ForeColor = FormUi.Ink,
-            Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-            Padding = new Padding(6)
+            Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+            Padding = new Padding(4)
         };
+        gridOrderDetails.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+        gridOrderDetails.ColumnHeadersHeight = 36;
+        gridOrderDetails.RowTemplate.Height = 36;
+
         gridOrderDetails.DefaultCellStyle = new DataGridViewCellStyle
         {
-            Padding = new Padding(6),
+            Padding = new Padding(4),
             SelectionBackColor = Color.FromArgb(255, 235, 214),
             SelectionForeColor = FormUi.Ink
         };
-        gridOrderDetails.RowTemplate.Height = 38;
 
-        gridOrderDetails.Columns.Add("Code", "Mã");
-        gridOrderDetails.Columns["Code"]!.Visible = false;
-        gridOrderDetails.Columns.Add("Name", "Tên món");
-        gridOrderDetails.Columns.Add("Price", "Đơn giá");
-        gridOrderDetails.Columns.Add("Qty", "SL");
-        gridOrderDetails.Columns["Qty"]!.Width = 48;
-        gridOrderDetails.Columns.Add("Total", "Thành tiền");
+        // Cấu hình các cột cố định chuẩn trang:
+        var colCode = new DataGridViewTextBoxColumn
+        {
+            Name = "Code",
+            HeaderText = "Mã",
+            Visible = false
+        };
+
+        // Tên món tự động chiếm trọn phần chiều rộng còn lại của bảng
+        var colName = new DataGridViewTextBoxColumn
+        {
+            Name = "Name",
+            HeaderText = "Tên món",
+            AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+            MinimumWidth = 140
+        };
+
+        // Đơn giá: Cố định 85px, căn phải
+        var colPrice = new DataGridViewTextBoxColumn
+        {
+            Name = "Price",
+            HeaderText = "Đơn giá",
+            Width = 85,
+            Resizable = DataGridViewTriState.False
+        };
+        colPrice.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+        colPrice.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+        // Số lượng: Cố định 42px, căn giữa
+        var colQty = new DataGridViewTextBoxColumn
+        {
+            Name = "Qty",
+            HeaderText = "SL",
+            Width = 42,
+            Resizable = DataGridViewTriState.False
+        };
+        colQty.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        colQty.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+        // Thành tiền: Cố định 98px, căn phải
+        var colTotal = new DataGridViewTextBoxColumn
+        {
+            Name = "Total",
+            HeaderText = "Thành tiền",
+            Width = 98,
+            Resizable = DataGridViewTriState.False
+        };
+        colTotal.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+        colTotal.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
 
         // Nút thao tác tăng giảm trên DataGridView
-        var colDec = new DataGridViewButtonColumn { HeaderText = "-", Text = "-", UseColumnTextForButtonValue = true, Width = 38 };
-        var colInc = new DataGridViewButtonColumn { HeaderText = "+", Text = "+", UseColumnTextForButtonValue = true, Width = 38 };
-        var colDel = new DataGridViewButtonColumn { HeaderText = "Xóa", Text = "✕", UseColumnTextForButtonValue = true, Width = 45 };
-        gridOrderDetails.Columns.Add(colDec);
-        gridOrderDetails.Columns.Add(colInc);
-        gridOrderDetails.Columns.Add(colDel);
+        var colDec = new DataGridViewButtonColumn
+        {
+            Name = "-",
+            HeaderText = "-",
+            Text = "-",
+            UseColumnTextForButtonValue = true,
+            Width = 32,
+            Resizable = DataGridViewTriState.False
+        };
+        var colInc = new DataGridViewButtonColumn
+        {
+            Name = "+",
+            HeaderText = "+",
+            Text = "+",
+            UseColumnTextForButtonValue = true,
+            Width = 32,
+            Resizable = DataGridViewTriState.False
+        };
+        var colDel = new DataGridViewButtonColumn
+        {
+            Name = "Xóa",
+            HeaderText = "Xóa",
+            Text = "✕",
+            UseColumnTextForButtonValue = true,
+            Width = 40,
+            Resizable = DataGridViewTriState.False
+        };
+
+        gridOrderDetails.Columns.AddRange(colCode, colName, colPrice, colQty, colTotal, colDec, colInc, colDel);
 
         gridOrderDetails.CellContentClick += GridOrderDetails_CellContentClick;
 
@@ -170,7 +262,7 @@ public class FormOrderMon : Form
         var lblTbl = FormUi.Label("Bàn:", 10F, FontStyle.Bold, Color.FromArgb(255, 230, 200));
         lblTbl.Margin = new Padding(0, 8, 4, 0);
 
-        cbTableSelect = new ComboBox { Width = 155, Height = 34, DropDownStyle = ComboBoxStyle.DropDownList, Font = FormUi.BodyFont };
+        cbTableSelect = new ComboBox { Width = 175, Height = 34, DropDownStyle = ComboBoxStyle.DropDownList, Font = FormUi.BodyFont, DropDownWidth = 260 };
         foreach (var tbl in DokkiStore.Tables)
         {
             cbTableSelect.Items.Add($"{tbl.Name} ({tbl.Status})");
@@ -192,7 +284,7 @@ public class FormOrderMon : Form
         var lblAdult = FormUi.Label("NL lớn (139K):", 10F, FontStyle.Bold, Color.FromArgb(255, 230, 200));
         lblAdult.Margin = new Padding(12, 8, 4, 0);
 
-        nudAdult = new NumericUpDown { Width = 52, Height = 32, Minimum = 1, Maximum = 50, Value = currentOrder.AdultCount, Font = FormUi.BodyFont };
+        nudAdult = new NumericUpDown { Width = 70, Height = 32, Minimum = 1, Maximum = 50, Value = currentOrder.AdultCount, Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), TextAlign = HorizontalAlignment.Center };
         nudAdult.ValueChanged += (_, _) =>
         {
             currentOrder.AdultCount = (int)nudAdult.Value;
@@ -202,7 +294,7 @@ public class FormOrderMon : Form
         var lblChild = FormUi.Label("Trẻ em (69K):", 10F, FontStyle.Bold, Color.FromArgb(255, 230, 200));
         lblChild.Margin = new Padding(12, 8, 4, 0);
 
-        nudChild = new NumericUpDown { Width = 52, Height = 32, Minimum = 0, Maximum = 50, Value = currentOrder.ChildCount, Font = FormUi.BodyFont };
+        nudChild = new NumericUpDown { Width = 70, Height = 32, Minimum = 0, Maximum = 50, Value = currentOrder.ChildCount, Font = new Font("Segoe UI", 10.5F, FontStyle.Bold), TextAlign = HorizontalAlignment.Center };
         nudChild.ValueChanged += (_, _) =>
         {
             currentOrder.ChildCount = (int)nudChild.Value;

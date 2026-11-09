@@ -10,60 +10,104 @@ public class FormThemDanhMuc : Form
     public FormThemDanhMuc()
     {
         Text = "DOKKI | Thêm danh mục món ăn";
-        Size = new Size(500, 390);
+        Size = new Size(540, 430);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         BackColor = Color.White;
         Font = FormUi.BodyFont;
+        AutoScaleMode = AutoScaleMode.Dpi;
 
         var nextCode = $"DM{DokkiStore.Categories.Count + 1:000}";
 
-        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = FormUi.DarkRed, Padding = new Padding(20, 16, 20, 16) };
-        var lblTitle = FormUi.Label("THÊM DANH MỤC MỚI", 13, FontStyle.Bold, Color.White);
+        // Header
+        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 68, BackColor = FormUi.DarkRed, Padding = new Padding(24, 12, 24, 12) };
+        var lblTitle = FormUi.Label("THÊM DANH MỤC MỚI", 12.5F, FontStyle.Bold, Color.White);
+        var lblSub = FormUi.Label("Phân loại các món ăn trên toàn hệ thống nhà hàng", 9F, FontStyle.Regular, Color.FromArgb(255, 225, 225));
+        lblSub.Location = new Point(24, 38);
         pnlHeader.Controls.Add(lblTitle);
+        pnlHeader.Controls.Add(lblSub);
         Controls.Add(pnlHeader);
 
-        var pnlBody = new Panel { Dock = DockStyle.Fill, Padding = new Padding(25, 20, 25, 20) };
-
-        var y = 15;
-        void AddField(string labelText, Control control)
+        // Body TableLayoutPanel
+        var tblLayout = new TableLayoutPanel
         {
-            var lbl = FormUi.Label(labelText, 10, FontStyle.Bold);
-            lbl.Location = new Point(25, y);
-            control.Location = new Point(160, y - 4);
-            control.Width = 280;
-            pnlBody.Controls.Add(lbl);
-            pnlBody.Controls.Add(control);
-            y += 46;
-        }
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 4,
+            Padding = new Padding(24, 20, 24, 10),
+            BackColor = Color.White
+        };
+        tblLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F));
+        tblLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
-        txtCode = new TextBox { Text = nextCode, ReadOnly = true, BackColor = Color.FromArgb(245, 245, 245) };
-        txtName = new TextBox { PlaceholderText = "Nhập tên danh mục..." };
-        txtNote = new TextBox { PlaceholderText = "Ghi chú phân loại..." };
-        cbStatus = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+        tblLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+        tblLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+        tblLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+        tblLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+
+        txtCode = new TextBox
+        {
+            Text = nextCode,
+            ReadOnly = true,
+            BackColor = Color.FromArgb(245, 246, 250),
+            Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+            Dock = DockStyle.Fill
+        };
+
+        txtName = new TextBox
+        {
+            PlaceholderText = "Nhập tên danh mục (VD: Lẩu Tokbokki, Đồ chiên...)...",
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
+
+        txtNote = new TextBox
+        {
+            PlaceholderText = "Ghi chú phân loại...",
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
+
+        cbStatus = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
         cbStatus.Items.AddRange(new object[] { "Đang phục vụ", "Tạm ẩn" });
         cbStatus.SelectedIndex = 0;
 
-        AddField("Mã danh mục:", txtCode);
-        AddField("Tên danh mục:", txtName);
-        AddField("Ghi chú:", txtNote);
-        AddField("Trạng thái:", cbStatus);
+        void AddRow(int row, string labelText, Control control)
+        {
+            var lbl = FormUi.Label(labelText, 10F, FontStyle.Bold);
+            lbl.Dock = DockStyle.Fill;
+            lbl.TextAlign = ContentAlignment.MiddleLeft;
+            tblLayout.Controls.Add(lbl, 0, row);
+            tblLayout.Controls.Add(control, 1, row);
+        }
 
-        var pnlButtons = new Panel { Dock = DockStyle.Bottom, Height = 65, BackColor = Color.FromArgb(248, 249, 250), Padding = new Padding(20) };
-        var btnSave = FormUi.Button("Lưu danh mục", FormUi.Red, 140);
-        btnSave.Location = new Point(190, 14);
+        AddRow(0, "Mã danh mục:", txtCode);
+        AddRow(1, "Tên danh mục:", txtName);
+        AddRow(2, "Ghi chú:", txtNote);
+        AddRow(3, "Trạng thái:", cbStatus);
+
+        // Buttons Footer
+        var pnlButtons = new Panel { Dock = DockStyle.Bottom, Height = 64, BackColor = Color.FromArgb(248, 249, 250), Padding = new Padding(24, 12, 24, 12) };
+        var pnlBtnFlow = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false };
+
+        var btnSave = FormUi.Button("✓ Lưu danh mục", FormUi.Red, 140);
         btnSave.Click += (_, _) => Save();
 
         var btnCancel = FormUi.Button("Hủy", FormUi.Muted, 90);
-        btnCancel.Location = new Point(340, 14);
         btnCancel.Click += (_, _) => Close();
 
-        pnlButtons.Controls.Add(btnSave);
-        pnlButtons.Controls.Add(btnCancel);
+        pnlBtnFlow.Controls.Add(btnSave);
+        pnlBtnFlow.Controls.Add(btnCancel);
+        pnlButtons.Controls.Add(pnlBtnFlow);
 
-        Controls.Add(pnlBody);
+        Controls.Add(tblLayout);
         Controls.Add(pnlButtons);
     }
 

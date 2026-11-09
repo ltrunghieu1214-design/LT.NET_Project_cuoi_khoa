@@ -12,73 +12,129 @@ public class FormThemMonAn : Form
     public FormThemMonAn()
     {
         Text = "DOKKI | Thêm món ăn mới";
-        Size = new Size(500, 480);
+        Size = new Size(560, 520);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         BackColor = Color.White;
         Font = FormUi.BodyFont;
+        AutoScaleMode = AutoScaleMode.Dpi;
 
         var nextCode = $"MA{DokkiStore.Foods.Count + 1:000}";
 
-        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = FormUi.DarkRed, Padding = new Padding(20, 16, 20, 16) };
-        var lblTitle = FormUi.Label("THÊM MÓN ĂN MỚI", 13, FontStyle.Bold, Color.White);
+        // Header
+        var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 68, BackColor = FormUi.DarkRed, Padding = new Padding(24, 12, 24, 12) };
+        var lblTitle = FormUi.Label("THÊM MÓN ĂN MỚI", 12.5F, FontStyle.Bold, Color.White);
+        var lblSub = FormUi.Label("Cập nhật món ăn vào thực đơn chi nhánh DOKKI", 9F, FontStyle.Regular, Color.FromArgb(255, 225, 225));
+        lblSub.Location = new Point(24, 38);
         pnlHeader.Controls.Add(lblTitle);
+        pnlHeader.Controls.Add(lblSub);
         Controls.Add(pnlHeader);
 
-        var pnlBody = new Panel { Dock = DockStyle.Fill, Padding = new Padding(25, 20, 25, 20) };
-
-        var y = 15;
-        void AddField(string labelText, Control control)
+        // Body TableLayoutPanel
+        var tblLayout = new TableLayoutPanel
         {
-            var lbl = FormUi.Label(labelText, 10, FontStyle.Bold);
-            lbl.Location = new Point(25, y);
-            control.Location = new Point(160, y - 4);
-            control.Width = 280;
-            pnlBody.Controls.Add(lbl);
-            pnlBody.Controls.Add(control);
-            y += 46;
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 6,
+            Padding = new Padding(24, 18, 24, 10),
+            BackColor = Color.White
+        };
+        tblLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160F));
+        tblLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+
+        for (int i = 0; i < 6; i++)
+        {
+            tblLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
         }
 
-        txtCode = new TextBox { Text = nextCode, ReadOnly = true, BackColor = Color.FromArgb(245, 245, 245) };
-        txtName = new TextBox { PlaceholderText = "Nhập tên món ăn..." };
-        cbCategory = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+        txtCode = new TextBox
+        {
+            Text = nextCode,
+            ReadOnly = true,
+            BackColor = Color.FromArgb(245, 246, 250),
+            Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+            Dock = DockStyle.Fill
+        };
+
+        txtName = new TextBox
+        {
+            PlaceholderText = "Nhập tên món ăn...",
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
+
+        cbCategory = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill,
+            DropDownWidth = 280
+        };
         foreach (var cat in DokkiStore.Categories)
         {
             cbCategory.Items.Add(cat.Name);
         }
         if (cbCategory.Items.Count > 0) cbCategory.SelectedIndex = 0;
 
-        txtPrice = new TextBox { Text = "59000", PlaceholderText = "Giá bán (VNĐ)..." };
-        cbUnit = new ComboBox { DropDownStyle = ComboBoxStyle.DropDown };
+        txtPrice = new TextBox
+        {
+            Text = "59000",
+            PlaceholderText = "Giá bán (VNĐ)...",
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
+
+        cbUnit = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDown,
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
         cbUnit.Items.AddRange(new object[] { "Đĩa 200g", "Đĩa 150g", "Phần", "Đĩa 6 con", "3 xiên", "Chai 500ml", "Ly 700ml", "Cốc", "Gói 110g" });
         cbUnit.SelectedIndex = 0;
 
-        cbStatus = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+        cbStatus = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Font = FormUi.BodyFont,
+            Dock = DockStyle.Fill
+        };
         cbStatus.Items.AddRange(new object[] { "Đang bán", "Tạm hết" });
         cbStatus.SelectedIndex = 0;
 
-        AddField("Mã món:", txtCode);
-        AddField("Tên món ăn:", txtName);
-        AddField("Danh mục:", cbCategory);
-        AddField("Giá bán (VNĐ):", txtPrice);
-        AddField("Đơn vị tính:", cbUnit);
-        AddField("Trạng thái:", cbStatus);
+        void AddRow(int row, string labelText, Control control)
+        {
+            var lbl = FormUi.Label(labelText, 10F, FontStyle.Bold);
+            lbl.Dock = DockStyle.Fill;
+            lbl.TextAlign = ContentAlignment.MiddleLeft;
+            tblLayout.Controls.Add(lbl, 0, row);
+            tblLayout.Controls.Add(control, 1, row);
+        }
 
-        var pnlButtons = new Panel { Dock = DockStyle.Bottom, Height = 65, BackColor = Color.FromArgb(248, 249, 250), Padding = new Padding(20) };
-        var btnSave = FormUi.Button("Lưu món ăn", FormUi.Red, 130);
-        btnSave.Location = new Point(200, 14);
+        AddRow(0, "Mã món:", txtCode);
+        AddRow(1, "Tên món ăn:", txtName);
+        AddRow(2, "Danh mục:", cbCategory);
+        AddRow(3, "Giá bán (VNĐ):", txtPrice);
+        AddRow(4, "Đơn vị tính:", cbUnit);
+        AddRow(5, "Trạng thái:", cbStatus);
+
+        // Buttons Footer
+        var pnlButtons = new Panel { Dock = DockStyle.Bottom, Height = 64, BackColor = Color.FromArgb(248, 249, 250), Padding = new Padding(24, 12, 24, 12) };
+        var pnlBtnFlow = new FlowLayoutPanel { Dock = DockStyle.Right, AutoSize = true, WrapContents = false };
+
+        var btnSave = FormUi.Button("✓ Lưu món ăn", FormUi.Red, 130);
         btnSave.Click += (_, _) => Save();
 
         var btnCancel = FormUi.Button("Hủy", FormUi.Muted, 90);
-        btnCancel.Location = new Point(340, 14);
         btnCancel.Click += (_, _) => Close();
 
-        pnlButtons.Controls.Add(btnSave);
-        pnlButtons.Controls.Add(btnCancel);
+        pnlBtnFlow.Controls.Add(btnSave);
+        pnlBtnFlow.Controls.Add(btnCancel);
+        pnlButtons.Controls.Add(pnlBtnFlow);
 
-        Controls.Add(pnlBody);
+        Controls.Add(tblLayout);
         Controls.Add(pnlButtons);
     }
 
