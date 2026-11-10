@@ -1,6 +1,6 @@
 namespace Phan_mem_quan_li_nha_hang_dokki;
 
-public partial class FormQuanLyBanAnVaDatBan : Form
+public class FormQuanLyBanAnVaDatBan : Form
 {
     private FlowLayoutPanel pnlTables = null!;
     private DataGridView gridBookings = null!;
@@ -10,7 +10,6 @@ public partial class FormQuanLyBanAnVaDatBan : Form
 
     public FormQuanLyBanAnVaDatBan()
     {
-        InitializeComponent();
         FormUi.StyleForm(this, "DOKKI | Bàn ăn & đặt bàn");
         WindowState = FormWindowState.Maximized;
         BuildView();
@@ -23,7 +22,7 @@ public partial class FormQuanLyBanAnVaDatBan : Form
         var header = FormUi.Header("Bàn ăn & đặt bàn", "Theo dõi sơ đồ bàn trực tiếp và danh sách lịch hẹn khách hàng — Chi nhánh DOKKI EPU");
         var body = new Panel { Dock = DockStyle.Fill, Padding = new Padding(28, 6, 28, 20) };
 
-        // Toolbar trên cùng: Thống kê trạng thái + Nút thêm bàn / Đặt bàn / Order
+        // Toolbar trên cùng: Thống kê trạng thái + Nút thêm bàn / Đặt bàn
         var toolbar = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = Color.Transparent };
         var pnlLegend = new FlowLayoutPanel { Dock = DockStyle.Left, Width = 520, Height = 50, WrapContents = false, Padding = new Padding(0, 10, 0, 0) };
 
@@ -37,14 +36,7 @@ public partial class FormQuanLyBanAnVaDatBan : Form
         pnlLegend.Controls.Add(lblServingCount);
         pnlLegend.Controls.Add(lblBookedCount);
 
-        var pnlActions = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 480, Height = 50, WrapContents = false, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 4, 0, 0) };
-
-        var btnOrder = FormUi.Button("🍽 Gọi món / POS", FormUi.Red, 145);
-        btnOrder.Click += (_, _) =>
-        {
-            using var orderForm = new FormOrderMon();
-            orderForm.ShowDialog(this);
-        };
+        var pnlActions = new FlowLayoutPanel { Dock = DockStyle.Right, Width = 300, Height = 50, WrapContents = false, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 4, 0, 0) };
 
         var btnAddBooking = FormUi.Button("+ Đặt bàn mới", FormUi.Gold, 130);
         btnAddBooking.ForeColor = Color.Black;
@@ -61,7 +53,6 @@ public partial class FormQuanLyBanAnVaDatBan : Form
             f.ShowDialog(this);
         };
 
-        pnlActions.Controls.Add(btnOrder);
         pnlActions.Controls.Add(btnAddBooking);
         pnlActions.Controls.Add(btnAddTable);
 
@@ -79,7 +70,7 @@ public partial class FormQuanLyBanAnVaDatBan : Form
 
         // Panel 1: Sơ đồ bàn ăn
         var pnlTableContainer = new Panel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new Padding(12) };
-        var lblTableTitle = new Label { Text = "SƠ ĐỒ BÀN ĂN CHI NHÁNH (Bấm vào bàn để gọi món hoặc đổi trạng thái)", Dock = DockStyle.Top, Height = 28, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), ForeColor = FormUi.Muted };
+        var lblTableTitle = new Label { Text = "SƠ ĐỒ BÀN ĂN CHI NHÁNH (Bấm vào bàn để đổi trạng thái)", Dock = DockStyle.Top, Height = 28, Font = new Font("Segoe UI", 9.5F, FontStyle.Bold), ForeColor = FormUi.Muted };
         pnlTables = new FlowLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.White, AutoScroll = true, Padding = new Padding(6) };
         pnlTableContainer.Controls.Add(pnlTables);
         pnlTableContainer.Controls.Add(lblTableTitle);
@@ -116,20 +107,37 @@ public partial class FormQuanLyBanAnVaDatBan : Form
             if (split.Width > 600) split.SplitterDistance = (int)(split.Width * 0.52);
         };
 
-        // QUY TẮC DOCKING CHUẨN: Toolbar ở đáy để chiếm mép trên, Split ở đỉnh để lấp đầy phần còn lại
-        body.Controls.Add(split);
-        body.Controls.Add(toolbar);
-        toolbar.Dock = DockStyle.Top;
-        split.Dock = DockStyle.Fill;
-        toolbar.SendToBack();
-        split.BringToFront();
+        var bodyLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = FormUi.Background,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        bodyLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        bodyLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
+        bodyLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        bodyLayout.Controls.Add(toolbar, 0, 0);
+        bodyLayout.Controls.Add(split, 0, 1);
+        body.Controls.Add(bodyLayout);
 
-        Controls.Add(body);
-        Controls.Add(header);
-        header.Dock = DockStyle.Top;
-        body.Dock = DockStyle.Fill;
-        header.SendToBack();
-        body.BringToFront();
+        var pageLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = FormUi.Background,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        pageLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        pageLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+        pageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        pageLayout.Controls.Add(header, 0, 0);
+        pageLayout.Controls.Add(body, 0, 1);
+        Controls.Add(pageLayout);
 
         ReloadAllData();
     }
@@ -190,20 +198,14 @@ public partial class FormQuanLyBanAnVaDatBan : Form
         var result = MessageBox.Show(
             $"BÀN {tableNumber:00} ({tbl.Area})\n" +
             $"Trạng thái hiện tại: {tbl.Status}\n\n" +
-            "• Chọn [Yes]: Mở màn hình GỌI MÓN (Order POS) cho bàn này\n" +
-            "• Chọn [No]: Đổi trạng thái bàn (Trống / Đang phục vụ / Đã đặt)\n" +
-            "• Chọn [Cancel]: Đóng",
+            "Chọn [Yes] để đổi trạng thái bàn (Trống / Đang phục vụ / Đã đặt).\n" +
+            "Chọn [No] để đóng.",
             $"Thao tác với {tbl.Name}",
-            MessageBoxButtons.YesNoCancel,
+            MessageBoxButtons.YesNo,
             MessageBoxIcon.Question
         );
 
         if (result == DialogResult.Yes)
-        {
-            using var orderForm = new FormOrderMon(tableNumber);
-            orderForm.ShowDialog(this);
-        }
-        else if (result == DialogResult.No)
         {
             // Xoay vòng trạng thái
             var nextStatus = tbl.Status switch

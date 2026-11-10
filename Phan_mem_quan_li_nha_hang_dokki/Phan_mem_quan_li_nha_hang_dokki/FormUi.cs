@@ -105,65 +105,12 @@ internal static class FormUi
         return grid;
     }
 
-    // Card thống kê không bao giờ đè chữ: dùng TableLayoutPanel chia 2 dòng riêng biệt
-    public static Panel Card(string caption, string value, Color accent)
-    {
-        var card = new Panel
-        {
-            BackColor = Surface,
-            Dock = DockStyle.Fill,
-            Margin = new Padding(0, 0, 14, 0),
-            Padding = new Padding(18, 12, 14, 12)
-        };
-        card.Paint += (_, e) =>
-        {
-            using var brush = new SolidBrush(accent);
-            e.Graphics.FillRectangle(brush, 0, 0, 6, card.Height);
-        };
-
-        var layout = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 2,
-            BackColor = Color.Transparent,
-            Margin = Padding.Empty,
-            Padding = Padding.Empty
-        };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-        var captionLabel = new Label
-        {
-            Text = caption.ToUpperInvariant(),
-            Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-            ForeColor = Muted,
-            TextAlign = ContentAlignment.MiddleLeft,
-            Margin = Padding.Empty
-        };
-        var valueLabel = new Label
-        {
-            Text = value,
-            Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", 19F, FontStyle.Bold),
-            ForeColor = Ink,
-            TextAlign = ContentAlignment.MiddleLeft,
-            Margin = Padding.Empty
-        };
-
-        layout.Controls.Add(captionLabel, 0, 0);
-        layout.Controls.Add(valueLabel, 0, 1);
-        card.Controls.Add(layout);
-        return card;
-    }
-
     // Header chuẩn không bao giờ đè chữ: dùng TableLayoutPanel chia 2 dòng riêng biệt
     public static Panel Header(string title, string subtitle)
     {
         var panel = new Panel
         {
-            Dock = DockStyle.Top,
+            Dock = DockStyle.Fill,
             Height = 88,
             BackColor = Background,
             Padding = new Padding(28, 14, 28, 10)
@@ -271,8 +218,6 @@ internal static class FormUi
 
         var items = new[]
         {
-            ("Tổng quan", "HOME"),
-            ("Gọi món / POS", "ORDER"),
             ("Bàn & đặt bàn", "TABLE"),
             ("Món ăn", "FOOD"),
             ("Danh mục", "CATEGORY")

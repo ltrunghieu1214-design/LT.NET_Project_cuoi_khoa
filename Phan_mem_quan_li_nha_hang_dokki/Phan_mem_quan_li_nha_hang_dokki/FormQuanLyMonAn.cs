@@ -1,6 +1,6 @@
 namespace Phan_mem_quan_li_nha_hang_dokki;
 
-public partial class FormQuanLyMonAn : Form
+public class FormQuanLyMonAn : Form
 {
     private DataGridView grid = null!;
     private TextBox search = null!;
@@ -8,7 +8,6 @@ public partial class FormQuanLyMonAn : Form
 
     public FormQuanLyMonAn()
     {
-        InitializeComponent();
         FormUi.StyleForm(this, "DOKKI | Quản lý món ăn");
         WindowState = FormWindowState.Maximized;
         BuildView();
@@ -64,20 +63,38 @@ public partial class FormQuanLyMonAn : Form
 
         grid.Columns.AddRange(colCode, colName, colCategory, colPrice, colUnit, colStatus);
 
-        // QUY TẮC DOCKING CHUẨN: Toolbar ở đáy để chiếm mép trên, Grid ở đỉnh để lấp đầy phần còn lại
-        body.Controls.Add(grid);
-        body.Controls.Add(toolbar);
-        toolbar.Dock = DockStyle.Top;
-        grid.Dock = DockStyle.Fill;
-        toolbar.SendToBack();
-        grid.BringToFront();
+        var bodyLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = FormUi.Background,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        bodyLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        bodyLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 58F));
+        bodyLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        bodyLayout.Controls.Add(toolbar, 0, 0);
+        bodyLayout.Controls.Add(grid, 0, 1);
 
-        Controls.Add(body);
-        Controls.Add(header);
-        header.Dock = DockStyle.Top;
-        body.Dock = DockStyle.Fill;
-        header.SendToBack();
-        body.BringToFront();
+        body.Controls.Add(bodyLayout);
+
+        var pageLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = FormUi.Background,
+            Margin = Padding.Empty,
+            Padding = Padding.Empty
+        };
+        pageLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+        pageLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 88F));
+        pageLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+        pageLayout.Controls.Add(header, 0, 0);
+        pageLayout.Controls.Add(body, 0, 1);
+        Controls.Add(pageLayout);
 
         ReloadGrid();
     }
