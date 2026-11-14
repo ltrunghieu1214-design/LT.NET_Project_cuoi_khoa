@@ -13,9 +13,7 @@ public static class DatabaseHelper
     // ================================================================
     private const string ConnectionString =
         @"Server=(localdb)\MSSQLLocalDB;Database=DokkiRestaurant;Integrated Security=True;TrustServerCertificate=True;";
-    //  Server=.          → SQL Server cài trên máy local (tên mặc định)
-    //  Nếu dùng tên instance: Server=.\SQLEXPRESS
-    //  Nếu dùng tài khoản SA: User Id=sa;Password=mật_khẩu;
+    //  Server=(localdb)\MSSQLLocalDB;Password=mật_khẩu;
 
     // ================================================================
     //  KẾT NỐI
@@ -364,4 +362,79 @@ public static class DatabaseHelper
         var result = cmd.ExecuteScalar();
         return result == DBNull.Value ? 0 : Convert.ToDecimal(result);
     }
+
+    public static DashboardSummary LoadDashboardSummary()
+    {
+        using var conn = GetConnection();
+        conn.Open();
+        using var cmd = new SqlCommand(
+            "SELECT " +
+            "ISNULL(SUM(CASE WHEN TrangThai = N'Đã thanh toán' " +
+            "AND NgayThanhToan >= CAST(GETDATE() AS DATE) " +
+            "AND NgayThanhToan < DATEADD(DAY, 1, CAST(GETDATE() AS DATE)) THEN TongTien ELSE 0 END), 0), " +
+            "COUNT(CASE WHEN TrangThai = N'Đã thanh toán' " +
+            "AND NgayThanhToan >= CAST(GETDATE() AS DATE) " +
+            "AND NgayThanhToan < DATEADD(DAY, 1, CAST(GETDATE() AS DATE)) THEN 1 END), " +
+            "(SELECT COUNT(*) FROM dbo.BanAn), " +
+            "(SELECT COUNT(*) FROM dbo.BanAn WHERE TrangThai = N'Đang phục vụ'), " +
+            "(SELECT COUNT(*) FROM dbo.MonAn WHERE TrangThai = N'Đang bán') " +
+            "FROM dbo.HoaDon; " +
+            "SELECT d.TenDanhMuc, COUNT(m.MaMon) " +
+            "FROM dbo.DanhMuc AS d LEFT JOIN dbo.MonAn AS m ON m.DanhMuc = d.TenDanhMuc " +
+            "GROUP BY d.TenDanhMuc ORDER BY d.TenDanhMuc; " +
+            "SELECT TrangThai, COUNT(*) FROM dbo.BanAn GROUP BY TrangThai ORDER BY TrangThai; " +
+            "SELECT TOP (30) MaDatBan, GioHen, TenKhach, SoDienThoai, SoNguoi, TenBan, TrangThai " +
+            "FROM dbo.DatBan " +
+            "WHERE TrangThai NOT IN (N'Đã hủy', N'Đã nhận bàn') " +
+            "ORDER BY TRY_CONVERT(time(0), GioHen), MaDatBan;", conn);
+
+        using var reader = cmd.ExecuteReader();
+        reader.Read();
+        var revenueToday = reader.GetDecimal(0);
+        var paidBillsToday = reader.GetInt32(1);
+        var totalTables = reader.GetInt32(2);
+        var servingTables = reader.GetInt32(3);
+        var activeMenuItems = reader.GetInt32(4);
+
+        var categories = new List<DashboardCategoryCount>();
+        if (reader.NextResult())
+        {
+            while (reader.Read())
+                categories.Add(new DashboardCategoryCount(reader.GetString(0), reader.GetInt32(1)));
+        }
+
+        var tableStatuses = new List<DashboardTableStatusCount>();
+        if (reader.NextResult())
+        {
+            while (reader.Read())
+                tableStatuses.Add(new DashboardTableStatusCount(reader.GetString(0), reader.GetInt32(1)));
+        }
+
+        var bookings = new List<BookingItem>();
+        if (reader.NextResult())
+        {
+            while (reader.Read())
+            {
+                bookings.Add(new BookingItem(
+                    reader.GetString(0),
+                    reader.GetString(1),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetString(4),
+                    reader.GetString(5),
+                    reader.GetString(6)));
+            }
+        }
+
+        return new DashboardSummary(
+            revenueToday,
+            paidBillsToday,
+            totalTables,
+            servingTables,
+            activeMenuItems,
+            categories,
+            tableStatuses,
+            bookings);
+    }
 }
+

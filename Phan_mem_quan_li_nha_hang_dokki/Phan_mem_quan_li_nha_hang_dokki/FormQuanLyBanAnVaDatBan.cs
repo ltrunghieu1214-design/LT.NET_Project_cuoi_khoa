@@ -65,7 +65,7 @@ public class FormQuanLyBanAnVaDatBan : Form
             Orientation = Orientation.Vertical,
             SplitterDistance = 620,
             FixedPanel = FixedPanel.Panel2,
-            IsSplitterFixed = false
+            IsSplitterFixed = true
         };
 
         // Panel 1: Sơ đồ bàn ăn
@@ -86,13 +86,13 @@ public class FormQuanLyBanAnVaDatBan : Form
         gridBookings.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         gridBookings.ScrollBars = ScrollBars.Vertical; // Vừa vặn 100% chiều ngang, không cần kéo tay
 
-        var colBCode = new DataGridViewTextBoxColumn { Name = "Code", HeaderText = "Mã", FillWeight = 50, MinimumWidth = 60 };
-        var colBTime = new DataGridViewTextBoxColumn { Name = "Time", HeaderText = "Giờ", FillWeight = 45, MinimumWidth = 55 };
-        var colBGuest = new DataGridViewTextBoxColumn { Name = "Guest", HeaderText = "Khách hàng", FillWeight = 125, MinimumWidth = 120 };
-        var colBPhone = new DataGridViewTextBoxColumn { Name = "Phone", HeaderText = "Điện thoại", FillWeight = 85, MinimumWidth = 90 };
-        var colBPax = new DataGridViewTextBoxColumn { Name = "Pax", HeaderText = "Số khách", FillWeight = 55, MinimumWidth = 65 };
-        var colBTable = new DataGridViewTextBoxColumn { Name = "Table", HeaderText = "Bàn", FillWeight = 55, MinimumWidth = 65 };
-        var colBStatus = new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "Trạng thái", FillWeight = 75, MinimumWidth = 85 };
+        var colBCode = new DataGridViewTextBoxColumn { Name = "Code", HeaderText = "Mã", FillWeight = 50, MinimumWidth = 50 };
+        var colBTime = new DataGridViewTextBoxColumn { Name = "Time", HeaderText = "Giờ", FillWeight = 45, MinimumWidth = 45 };
+        var colBGuest = new DataGridViewTextBoxColumn { Name = "Guest", HeaderText = "Khách hàng", FillWeight = 125, MinimumWidth = 100 };
+        var colBPhone = new DataGridViewTextBoxColumn { Name = "Phone", HeaderText = "Điện thoại", FillWeight = 85, MinimumWidth = 75 };
+        var colBPax = new DataGridViewTextBoxColumn { Name = "Pax", HeaderText = "Số khách", FillWeight = 55, MinimumWidth = 55 };
+        var colBTable = new DataGridViewTextBoxColumn { Name = "Table", HeaderText = "Bàn", FillWeight = 55, MinimumWidth = 50 };
+        var colBStatus = new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "Trạng thái", FillWeight = 75, MinimumWidth = 75 };
 
         gridBookings.Columns.AddRange(colBCode, colBTime, colBGuest, colBPhone, colBPax, colBTable, colBStatus);
 

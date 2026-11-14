@@ -58,7 +58,7 @@ public class FormQuanLyDanhMucMonAn : Form
             SplitterWidth = 14,
             BackColor = Color.FromArgb(235, 237, 242),
             FixedPanel = FixedPanel.None,
-            IsSplitterFixed = false
+            IsSplitterFixed = true
         };
 
         // Panel 1: Danh sách 30 Danh mục thực đơn

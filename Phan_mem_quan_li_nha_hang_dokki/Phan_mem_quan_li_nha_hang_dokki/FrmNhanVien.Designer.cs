@@ -279,13 +279,19 @@
             // dgvNhanVien
             // 
             dgvNhanVien.AllowUserToAddRows = false;
+            dgvNhanVien.AllowUserToResizeColumns = false;
+            dgvNhanVien.AllowUserToResizeRows = false;
+            dgvNhanVien.AllowUserToOrderColumns = false;
             dgvNhanVien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvNhanVien.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvNhanVien.ColumnHeadersHeight = 36;
+            dgvNhanVien.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvNhanVien.Location = new Point(5, 63);
             dgvNhanVien.MultiSelect = false;
             dgvNhanVien.Name = "dgvNhanVien";
             dgvNhanVien.ReadOnly = true;
+            dgvNhanVien.RowHeadersVisible = false;
             dgvNhanVien.RowHeadersWidth = 51;
+            dgvNhanVien.RowTemplate.Height = 34;
             dgvNhanVien.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvNhanVien.Size = new Size(997, 334);
             dgvNhanVien.TabIndex = 17;

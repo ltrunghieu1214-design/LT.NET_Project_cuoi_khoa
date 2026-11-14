@@ -76,11 +76,17 @@ internal static class FormUi
             BorderStyle = BorderStyle.None,
             AllowUserToAddRows = false,
             AllowUserToDeleteRows = false,
+            AllowUserToResizeColumns = false,
+            AllowUserToResizeRows = false,
+            AllowUserToOrderColumns = false,
             ReadOnly = true,
             AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+            ColumnHeadersHeight = 36,
+            ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             MultiSelect = false,
             RowHeadersVisible = false,
+            RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing,
             EnableHeadersVisualStyles = false,
             Font = BodyFont,
             GridColor = Color.FromArgb(235, 235, 238)
@@ -101,7 +107,7 @@ internal static class FormUi
             SelectionForeColor = Ink,
             Padding = new Padding(8)
         };
-        grid.RowTemplate.Height = 42;
+        grid.RowTemplate.Height = 34;
         return grid;
     }
 
@@ -152,7 +158,7 @@ internal static class FormUi
         return panel;
     }
 
-    public static Panel Navigation(string active, Action<string> navigate)
+    public static Panel Navigation(string active, Action<string> navigate, bool isAdmin, string username, string role, Action logout)
     {
         var nav = new Panel
         {
@@ -216,12 +222,18 @@ internal static class FormUi
             Padding = new Padding(0, 16, 0, 0)
         };
 
-        var items = new[]
+        var items = new List<(string, string)>
         {
+            ("Trang chủ / Tổng quan", "HOME"),
             ("Bàn & đặt bàn", "TABLE"),
             ("Món ăn", "FOOD"),
             ("Danh mục", "CATEGORY")
         };
+        if (isAdmin)
+        {
+            items.Add(("Quản lý nhân viên", "STAFF"));
+            items.Add(("Quản lý tài khoản", "ACCOUNTS"));
+        }
 
         var y = 10;
         foreach (var item in items)
@@ -247,18 +259,31 @@ internal static class FormUi
             y += 52;
         }
 
-        var user = Label("●  Quản trị viên / Thu ngân\n    Chi nhánh DOKKI EPU", 9.5F, FontStyle.Regular, Color.White);
-        user.Location = new Point(14, nav.Height - 65);
+        var user = Label($"●  {username} ({role})\n    Chi nhánh DOKKI EPU", 9.5F, FontStyle.Regular, Color.White);
+        user.Location = new Point(14, nav.Height - 98);
         user.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+        var btnLogout = Button("Đăng xuất", Red, 232);
+        btnLogout.Size = new Size(nav.ClientSize.Width - nav.Padding.Horizontal, btnLogout.Height);
+        btnLogout.Location = new Point(nav.Padding.Left, nav.ClientSize.Height - nav.Padding.Bottom - btnLogout.Height);
+        btnLogout.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+        btnLogout.Click += (_, _) => logout();
 
         nav.Controls.Add(pnlMenu);
         nav.Controls.Add(pnlBrand);
         nav.Controls.Add(user);
+        nav.Controls.Add(btnLogout);
 
         pnlBrand.SendToBack();
         pnlMenu.BringToFront();
+        user.BringToFront();
+        btnLogout.BringToFront();
 
-        nav.Resize += (_, _) => user.Location = new Point(14, nav.Height - 65);
+        nav.Resize += (_, _) =>
+        {
+            user.Location = new Point(14, nav.Height - 98);
+            btnLogout.Size = new Size(nav.ClientSize.Width - nav.Padding.Horizontal, btnLogout.Height);
+            btnLogout.Location = new Point(nav.Padding.Left, nav.ClientSize.Height - nav.Padding.Bottom - btnLogout.Height);
+        };
 
         return nav;
     }
