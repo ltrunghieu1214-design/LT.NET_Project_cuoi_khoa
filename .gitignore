@@ -5,3 +5,9 @@
 /.vs
 /Phan_mem_quan_li_nha_hang_dokki/.vs
 /Phan_mem_quan_li_nha_hang_dokki/Phan_mem_quan_li_nha_hang_dokki/obj
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.log
